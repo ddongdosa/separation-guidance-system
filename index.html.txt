@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>분리지도 요청 시스템</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e1e1;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .emergency-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 20px 10px;
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .emergency-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        .preview-btn {
+            background: linear-gradient(45deg, #4ecdc4, #26a69a);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px;
+        }
+
+        .preview-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .preview-area {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: left;
+            display: none;
+        }
+
+        .preview-area h3 {
+            color: #495057;
+            margin-bottom: 15px;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .time-display {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .settings-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s;
+        }
+
+        .settings-toggle:hover {
+            background: #5a6268;
+            transform: rotate(90deg);
+        }
+
+        .settings-panel {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+            position: relative;
+        }
+
+        .settings-panel h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .close-settings {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #6c757d;
+        }
+
+        .download-btn {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .history-panel {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .history-panel h3 {
+            color: #495057;
+            margin-bottom: 15px;
+        }
+
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 10px;
+            background: white;
+        }
+
+        .history-item {
+            padding: 8px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 14px;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="settings-toggle" onclick="toggleSettings()" title="설정">⚙️</button>
+        
+        <div class="header">
+            <h1>🚨 분리지도 요청</h1>
+            <p class="subtitle">⚡ 초긴급 모드: 학급만 선택하고 즉시 전송!</p>
+        </div>
+
+        <div id="settingsPanel" class="settings-panel">
+            <button class="close-settings" onclick="toggleSettings()">✕</button>
+            <h3>⚙️ 시스템 설정</h3>
+            
+            <div class="form-group">
+                <label for="vicePrincipalEmail">교감선생님 메일 주소</label>
+                <input type="email" id="vicePrincipalEmail" placeholder="vice-principal@school.edu">
+            </div>
+            
+            <div class="form-group">
+                <label for="ccEmail">참조(CC) 메일 주소 (선택사항)</label>
+                <input type="email" id="ccEmail" placeholder="principal@school.edu">
+            </div>
+            
+            <div class="form-group">
+                <label for="schoolName">학교명</label>
+                <input type="text" id="schoolName" placeholder="○○초등학교">
+            </div>
+            
+            <button type="button" class="preview-btn" onclick="saveSettings()">💾 설정 저장</button>
+            <button type="button" class="preview-btn" onclick="resetSettings()">🔄 초기화</button>
+        </div>
+
+        <div class="time-display">
+            현재 시간: <span id="currentTime"></span>
+        </div>
+
+        <form id="separationForm">
+            <div class="form-group">
+                <label for="studentClass">🔴 학급 (필수)</label>
+                <select id="studentClass" required>
+                    <option value="">학급 선택</option>
+                    <option value="1-1">1학년 1반</option>
+                    <option value="1-2">1학년 2반</option>
+                    <option value="1-3">1학년 3반</option>
+                    <option value="1-4">1학년 4반</option>
+                    <option value="1-5">1학년 5반</option>
+                    <option value="1-6">1학년 6반</option>
+                    <option value="1-7">1학년 7반</option>
+                    <option value="1-8">1학년 8반</option>
+                    <option value="1-9">1학년 9반</option>
+                    <option value="1-10">1학년 10반</option>
+                    <option value="2-1">2학년 1반</option>
+                    <option value="2-2">2학년 2반</option>
+                    <option value="2-3">2학년 3반</option>
+                    <option value="2-4">2학년 4반</option>
+                    <option value="2-5">2학년 5반</option>
+                    <option value="2-6">2학년 6반</option>
+                    <option value="2-7">2학년 7반</option>
+                    <option value="2-8">2학년 8반</option>
+                    <option value="2-9">2학년 9반</option>
+                    <option value="2-10">2학년 10반</option>
+                    <option value="3-1">3학년 1반</option>
+                    <option value="3-2">3학년 2반</option>
+                    <option value="3-3">3학년 3반</option>
+                    <option value="3-4">3학년 4반</option>
+                    <option value="3-5">3학년 5반</option>
+                    <option value="3-6">3학년 6반</option>
+                    <option value="3-7">3학년 7반</option>
+                    <option value="3-8">3학년 8반</option>
+                    <option value="3-9">3학년 9반</option>
+                    <option value="3-10">3학년 10반</option>
+                    <option value="4-1">4학년 1반</option>
+                    <option value="4-2">4학년 2반</option>
+                    <option value="4-3">4학년 3반</option>
+                    <option value="4-4">4학년 4반</option>
+                    <option value="4-5">4학년 5반</option>
+                    <option value="4-6">4학년 6반</option>
+                    <option value="4-7">4학년 7반</option>
+                    <option value="4-8">4학년 8반</option>
+                    <option value="4-9">4학년 9반</option>
+                    <option value="4-10">4학년 10반</option>
+                    <option value="5-1">5학년 1반</option>
+                    <option value="5-2">5학년 2반</option>
+                    <option value="5-3">5학년 3반</option>
+                    <option value="5-4">5학년 4반</option>
+                    <option value="5-5">5학년 5반</option>
+                    <option value="5-6">5학년 6반</option>
+                    <option value="5-7">5학년 7반</option>
+                    <option value="5-8">5학년 8반</option>
+                    <option value="5-9">5학년 9반</option>
+                    <option value="5-10">5학년 10반</option>
+                    <option value="6-1">6학년 1반</option>
+                    <option value="6-2">6학년 2반</option>
+                    <option value="6-3">6학년 3반</option>
+                    <option value="6-4">6학년 4반</option>
+                    <option value="6-5">6학년 5반</option>
+                    <option value="6-6">6학년 6반</option>
+                    <option value="6-7">6학년 7반</option>
+                    <option value="6-8">6학년 8반</option>
+                    <option value="6-9">6학년 9반</option>
+                    <option value="6-10">6학년 10반</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="classTime">교시 (선택)</label>
+                <select id="classTime">
+                    <option value="">교시 선택</option>
+                    <option value="1교시">1교시 (09:00-09:40)</option>
+                    <option value="2교시">2교시 (09:50-10:30)</option>
+                    <option value="3교시">3교시 (10:40-11:20)</option>
+                    <option value="4교시">4교시 (11:30-12:10)</option>
+                    <option value="5교시">5교시 (13:10-13:50)</option>
+                    <option value="6교시">6교시 (14:00-14:40)</option>
+                    <option value="방과후">방과후 시간</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="teacherName">요청 교사명 (선택)</label>
+                <input type="text" id="teacherName" placeholder="홍길동">
+            </div>
+
+            <div class="form-group">
+                <label for="studentName">학생명 (선택)</label>
+                <input type="text" id="studentName" placeholder="김학생">
+            </div>
+
+            <div class="form-group">
+                <label for="urgencyLevel">긴급도 (선택)</label>
+                <select id="urgencyLevel">
+                    <option value="매우긴급">🔴 매우긴급 (즉시 대응 필요)</option>
+                    <option value="긴급">🟡 긴급 (신속 대응 필요)</option>
+                    <option value="일반">🟢 일반 (시간 여유 있음)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="situation">상황 설명 (선택)</label>
+                <textarea id="situation" placeholder="구체적인 상황을 간략히 설명해주세요.&#10;예) 수업 중 다른 학생에게 폭언, 교사 지시 불복종, 교실 이탈 등"></textarea>
+            </div>
+
+            <div class="warning-box">
+                ⚡ <strong>초긴급 모드:</strong> 학급만 선택하고 바로 전송 가능!<br>
+                🔴 나머지 정보는 나중에 보충해서 알려주셔도 됩니다.<br>
+                ⚠️ 이 시스템은 교육적 목적의 데모입니다.
+            </div>
+
+            <button type="button" class="preview-btn" onclick="previewEmail()">📧 메일 미리보기</button>
+            <button type="button" class="emergency-btn" onclick="sendRequest()">⚡ 초긴급 요청 전송</button>
+            <button type="button" class="download-btn" onclick="toggleHistory()">📊 전송 기록 보기</button>
+        </form>
+
+        <div id="historyPanel" class="history-panel">
+            <h3>📊 분리지도 요청 기록</h3>
+            <div id="historyList" class="history-list">
+                <p>아직 전송된 요청이 없습니다.</p>
+            </div>
+            <button type="button" class="download-btn" onclick="downloadExcel()">📥 엑셀 다운로드</button>
+            <button type="button" class="preview-btn" onclick="clearHistory()">🗑️ 기록 삭제</button>
+        </div>
+
+        <div id="emailPreview" class="preview-area">
+            <h3>📧 전송될 메일 내용</h3>
+            <div id="previewContent"></div>
+        </div>
+
+        <div id="status" class="status"></div>
+    </div>
+
+    <script>
+        // 현재 시간 업데이트
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleString('ko-KR');
+            document.getElementById('currentTime').textContent = timeString;
+        }
+
+        // 페이지 로드 시 시간 설정 및 매초 업데이트
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // 페이지 로드 시 저장된 설정 불러오기
+        window.addEventListener('load', function() {
+            loadSettings();
+        });
+
+        // 설정 패널 토글
+        function toggleSettings() {
+            const panel = document.getElementById('settingsPanel');
+            panel.style.display = panel.style.display === 'none' || panel.style.display === '' ? 'block' : 'none';
+        }
+
+        // 설정 저장
+        function saveSettings() {
+            const vicePrincipalEmail = document.getElementById('vicePrincipalEmail').value;
+            const ccEmail = document.getElementById('ccEmail').value;
+            const schoolName = document.getElementById('schoolName').value;
+
+            if (!vicePrincipalEmail) {
+                showStatus('교감선생님 메일 주소를 입력해주세요.', 'error');
+                return;
+            }
+
+            // 메일 형식 검증
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(vicePrincipalEmail)) {
+                showStatus('올바른 메일 주소 형식을 입력해주세요.', 'error');
+                return;
+            }
+
+            // 브라우저 저장소에 설정 저장
+            localStorage.setItem('vicePrincipalEmail', vicePrincipalEmail);
+            localStorage.setItem('ccEmail', ccEmail);
+            localStorage.setItem('schoolName', schoolName);
+
+            showStatus('설정이 저장되었습니다.', 'success');
+            toggleSettings();
+        }
+
+        // 설정 불러오기
+        function loadSettings() {
+            const vicePrincipalEmail = localStorage.getItem('vicePrincipalEmail');
+            const ccEmail = localStorage.getItem('ccEmail');
+            const schoolName = localStorage.getItem('schoolName');
+
+            if (vicePrincipalEmail) {
+                document.getElementById('vicePrincipalEmail').value = vicePrincipalEmail;
+            }
+            if (ccEmail) {
+                document.getElementById('ccEmail').value = ccEmail;
+            }
+            if (schoolName) {
+                document.getElementById('schoolName').value = schoolName;
+            }
+        }
+
+        // 전송 기록 패널 토글
+        function toggleHistory() {
+            const panel = document.getElementById('historyPanel');
+            panel.style.display = panel.style.display === 'none' || panel.style.display === '' ? 'block' : 'none';
+            
+            if (panel.style.display === 'block') {
+                displayHistory();
+            }
+        }
+
+        // 전송 기록을 localStorage에 저장
+        function saveRequestHistory(data) {
+            let history = JSON.parse(localStorage.getItem('requestHistory') || '[]');
+            history.push(data);
+            // 최대 50개까지만 저장
+            if (history.length > 50) {
+                history = history.slice(-50);
+            }
+            localStorage.setItem('requestHistory', JSON.stringify(history));
+        }
+
+        // 전송 기록 표시
+        function displayHistory() {
+            const history = JSON.parse(localStorage.getItem('requestHistory') || '[]');
+            const historyList = document.getElementById('historyList');
+            
+            if (history.length === 0) {
+                historyList.innerHTML = '<p>아직 전송된 요청이 없습니다.</p>';
+                return;
+            }
+
+            historyList.innerHTML = history.map((item, index) => `
+                <div class="history-item">
+                    <strong>${index + 1}.</strong> ${item.date} | ${item.classTime || '시간미정'} | ${item.studentClass} ${item.studentName} | ${item.urgencyLevel}
+                    <br><small>교사: ${item.teacherName} | 상황: ${item.situation.substring(0, 50)}${item.situation.length > 50 ? '...' : ''}</small>
+                </div>
+            `).join('');
+        }
+
+        // 엑셀 다운로드 함수
+        function downloadExcel() {
+            const history = JSON.parse(localStorage.getItem('requestHistory') || '[]');
+            
+            if (history.length === 0) {
+                showStatus('다운로드할 기록이 없습니다.', 'error');
+                return;
+            }
+
+            // CSV 형식으로 데이터 구성
+            const csvHeaders = ['번호', '요청일시', '교시', '학급', '학생명', '교사명', '긴급도', '상황설명'];
+            const csvData = history.map((item, index) => [
+                index + 1,
+                item.date,
+                item.classTime || '미정',
+                item.studentClass,
+                item.studentName,
+                item.teacherName,
+                item.urgencyLevel,
+                `"${item.situation.replace(/"/g, '""')}"`  // CSV를 위한 따옴표 처리
+            ]);
+
+            // CSV 문자열 생성
+            const csvContent = [csvHeaders, ...csvData]
+                .map(row => row.join(','))
+                .join('\n');
+
+            // BOM 추가 (한글 깨짐 방지)
+            const bom = '\uFEFF';
+            const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
+            
+            // 파일 다운로드
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            
+            const now = new Date();
+            const fileName = `분리지도_요청기록_${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}.csv`;
+            link.setAttribute('download', fileName);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showStatus('엑셀 파일이 다운로드되었습니다.', 'success');
+        }
+
+        // 기록 삭제
+        function clearHistory() {
+            if (confirm('모든 전송 기록을 삭제하시겠습니까?')) {
+                localStorage.removeItem('requestHistory');
+                displayHistory();
+                showStatus('모든 기록이 삭제되었습니다.', 'success');
+            }
+        }
+
+        // 설정 초기화
+        function resetSettings() {
+            if (confirm('모든 설정을 초기화하시겠습니까?')) {
+                localStorage.removeItem('vicePrincipalEmail');
+                localStorage.removeItem('ccEmail');
+                localStorage.removeItem('schoolName');
+                
+                document.getElementById('vicePrincipalEmail').value = '';
+                document.getElementById('ccEmail').value = '';
+                document.getElementById('schoolName').value = '';
+                
+                showStatus('설정이 초기화되었습니다.', 'success');
+            }
+        }
+
+        // 메일 미리보기 함수
+        function previewEmail() {
+            const studentClass = document.getElementById('studentClass').value;
+
+            if (!studentClass) {
+                showStatus('학급을 선택해주세요.', 'error');
+                return;
+            }
+
+            const classTime = document.getElementById('classTime').value || '시간미정';
+            const teacherName = document.getElementById('teacherName').value || '담임교사';
+            const studentName = document.getElementById('studentName').value || '해당 학급 학생';
+            const urgencyLevel = document.getElementById('urgencyLevel').value || '매우긴급';
+            const situation = document.getElementById('situation').value || '긴급상황 발생으로 즉시 분리지도가 필요합니다.';
+
+            const currentTime = new Date().toLocaleString('ko-KR');
+            const urgencyEmoji = urgencyLevel.includes('매우긴급') ? '🔴' : urgencyLevel.includes('긴급') ? '🟡' : '🟢';
+            const schoolName = localStorage.getItem('schoolName') || '○○초등학교';
+            const vicePrincipalEmail = localStorage.getItem('vicePrincipalEmail') || 'vice-principal@school.edu';
+
+            const emailContent = `
+                <strong>수신자:</strong> ${vicePrincipalEmail}<br>
+                <strong>제목:</strong> [${urgencyEmoji} ${urgencyLevel}] ${schoolName} 분리지도 요청 - ${studentClass} ${studentName} (${classTime})<br><br>
+                <strong>요청 교사:</strong> ${teacherName}<br>
+                <strong>요청 시간:</strong> ${currentTime}<br>
+                <strong>학교:</strong> ${schoolName}<br>
+                <strong>발생 교시:</strong> ${classTime}<br>
+                <strong>대상 학생:</strong> ${studentClass} ${studentName}<br>
+                <strong>긴급도:</strong> ${urgencyLevel}<br><br>
+                <strong>상황 설명:</strong><br>
+                ${situation.replace(/\n/g, '<br>')}<br><br>
+                <strong>조치 요청사항:</strong><br>
+                해당 학생에 대한 분리지도를 요청드립니다.<br>
+                가능한 시간에 교무실로 학생 분리 조치 부탁드립니다.<br><br>
+                <em>※ 이 메일은 ${schoolName} 분리지도 요청 시스템을 통해 자동 발송되었습니다.</em>
+            `;
+
+            document.getElementById('previewContent').innerHTML = emailContent;
+            document.getElementById('emailPreview').style.display = 'block';
+        }
+
+        // 요청 전송 함수
+        function sendRequest() {
+            const studentClass = document.getElementById('studentClass').value;
+
+            // 학급만 필수로 체크
+            if (!studentClass) {
+                showStatus('학급을 선택해주세요.', 'error');
+                return;
+            }
+
+            // 설정된 메일 주소 확인
+            const vicePrincipalEmail = localStorage.getItem('vicePrincipalEmail');
+            if (!vicePrincipalEmail) {
+                showStatus('설정에서 교감선생님 메일 주소를 먼저 설정해주세요.', 'error');
+                toggleSettings();
+                return;
+            }
+
+            // 나머지 정보는 기본값 사용 (빈 값일 경우)
+            const classTime = document.getElementById('classTime').value || '시간미정';
+            const teacherName = document.getElementById('teacherName').value || '담임교사';
+            const studentName = document.getElementById('studentName').value || '해당 학급 학생';
+            const urgencyLevel = document.getElementById('urgencyLevel').value || '매우긴급';
+            const situation = document.getElementById('situation').value || '긴급상황 발생으로 즉시 분리지도가 필요합니다.\n추가 정보는 추후 보고드리겠습니다.';
+
+            const currentTime = new Date().toLocaleString('ko-KR');
+            const urgencyEmoji = urgencyLevel.includes('매우긴급') ? '🔴' : urgencyLevel.includes('긴급') ? '🟡' : '🟢';
+            const schoolName = localStorage.getItem('schoolName') || '○○초등학교';
+            const ccEmail = localStorage.getItem('ccEmail');
+            
+            // 메일 제목과 내용 구성
+            const subject = `[${urgencyEmoji} ${urgencyLevel}] ${schoolName} 분리지도 요청 - ${studentClass} ${studentName} (${classTime})`;
+            const body = `교감선생님께,
+
+${schoolName} ${teacherName}입니다.
+다음 학생에 대한 분리지도를 요청드립니다.
+
+■ 요청 정보
+- 요청 교사: ${teacherName}
+- 요청 시간: ${currentTime}
+- 학교: ${schoolName}
+- 발생 교시: ${classTime}
+- 대상 학생: ${studentClass} ${studentName}
+- 긴급도: ${urgencyLevel}
+
+■ 상황 설명
+${situation}
+
+■ 조치 요청사항
+해당 학생에 대한 분리지도를 요청드립니다.
+가능한 시간에 교무실로 학생 분리 조치 부탁드립니다.
+
+감사합니다.
+
+※ 이 메일은 ${schoolName} 분리지도 요청 시스템을 통해 자동 발송되었습니다.`;
+
+            // 전송 기록 저장
+            const requestData = {
+                date: currentTime,
+                classTime: classTime,
+                studentClass: studentClass,
+                studentName: studentName,
+                teacherName: teacherName,
+                urgencyLevel: urgencyLevel,
+                situation: situation,
+                recipient: vicePrincipalEmail
+            };
+            saveRequestHistory(requestData);
+
+            // 메일 클라이언트 열기 (mailto 링크 사용)
+            let mailtoLink = `mailto:${vicePrincipalEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            
+            // CC 메일이 설정되어 있으면 추가
+            if (ccEmail && ccEmail.trim()) {
+                mailtoLink += `&cc=${encodeURIComponent(ccEmail)}`;
+            }
+            
+            try {
+                window.location.href = mailtoLink;
+                showStatus(`⚡ 긴급 요청이 처리되었습니다!\n${currentTime}에 ${studentClass} ${classTime} 분리지도 요청이 ${vicePrincipalEmail}로 전송되었습니다.\n\n🔴 추가 정보는 나중에 보충해서 알려주셔도 됩니다.`, 'success');
+                
+                // 폼 초기화
+                document.getElementById('separationForm').reset();
+                document.getElementById('emailPreview').style.display = 'none';
+                
+                // 긴급도를 다시 기본값으로 설정
+                document.getElementById('urgencyLevel').value = '매우긴급';
+                
+            } catch (error) {
+                showStatus('메일 전송 중 오류가 발생했습니다. 다시 시도해주세요.', 'error');
+            }
+        }
+
+        // 상태 메시지 표시 함수
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            // 3초 후 메시지 숨기기
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // 엔터키로 전송 방지 (실수 방지)
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && event.target.tagName !== 'TEXTAREA') {
+                event.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
