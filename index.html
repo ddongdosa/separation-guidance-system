@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>분리지도 요청 시스템</title>
+    <title>2025 와석초 분리지도 요청 시스템</title>
     
     <!-- EmailJS 라이브러리 -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
@@ -305,7 +305,7 @@
         <button class="settings-toggle" onclick="toggleSettings()" title="설정">⚙️</button>
         
         <div class="header">
-            <h1>🚨 분리지도 요청</h1>
+            <h1>🚨 2025 와석초 분리지도 요청</h1>
             <p class="subtitle">⚡ 초긴급 모드: 학급 + 교감 선택하고 즉시 전송!</p>
         </div>
 
@@ -316,7 +316,7 @@
             <!-- 교감선생님 1분 -->
             <div class="form-group">
                 <label for="vicePrincipal1Email">1교감선생님 메일 주소</label>
-                <input type="email" id="vicePrincipal1Email" placeholder="vice-principal1@school.edu">
+                <input type="email" id="vicePrincipal1Email" placeholder="hanrame@daum.net">
             </div>
             
             <div class="form-group">
@@ -327,7 +327,7 @@
             <!-- 교감선생님 2분 -->
             <div class="form-group">
                 <label for="vicePrincipal2Email">2교감선생님 메일 주소</label>
-                <input type="email" id="vicePrincipal2Email" placeholder="vice-principal2@school.edu">
+                <input type="email" id="vicePrincipal2Email" placeholder="dowon121202@gmail.com">
             </div>
             
             <div class="form-group">
@@ -343,23 +343,23 @@
             
             <div class="form-group">
                 <label for="schoolName">학교명</label>
-                <input type="text" id="schoolName" placeholder="○○초등학교">
+                <input type="text" id="schoolName" placeholder="와석초등학교">
             </div>
             
             <!-- EmailJS 설정 -->
             <div class="form-group">
                 <label for="emailjsServiceId">EmailJS Service ID</label>
-                <input type="text" id="emailjsServiceId" placeholder="service_abc123">
+                <input type="text" id="emailjsServiceId" placeholder="service_km1dyqo">
             </div>
             
             <div class="form-group">
                 <label for="emailjsTemplateId">EmailJS Template ID</label>
-                <input type="text" id="emailjsTemplateId" placeholder="template_xyz789">
+                <input type="text" id="emailjsTemplateId" placeholder="template_7govip5">
             </div>
             
             <div class="form-group">
                 <label for="emailjsPublicKey">EmailJS Public Key</label>
-                <input type="text" id="emailjsPublicKey" placeholder="your_public_key">
+                <input type="text" id="emailjsPublicKey" placeholder="TkDbK0r60JIBx0R6A">
             </div>
             
             <button type="button" class="preview-btn" onclick="saveSettings()">💾 설정 저장</button>
@@ -442,8 +442,8 @@
                 <label for="vicePrincipalSelect" class="required-field">🔴 교감선생님 선택 (필수)</label>
                 <select id="vicePrincipalSelect" required class="vp-select">
                     <option value="">교감선생님 선택</option>
-                    <option value="vp1">1교감선생님</option>
-                    <option value="vp2">2교감선생님</option>
+                    <option value="vp1">기남호 교감선생님</option>
+                    <option value="vp2">김동구 교감선생님</option>
                     <option value="both">두 분 모두</option>
                 </select>
             </div>
@@ -517,11 +517,12 @@
     <script>
         // EmailJS 초기화 (페이지 로드 시)
         document.addEventListener('DOMContentLoaded', function() {
+            setDefaultValues(); // 기본값 먼저 설정
+            loadSettings(); // 그 다음 설정 불러오기
             const publicKey = localStorage.getItem('emailjsPublicKey');
             if (publicKey) {
                 emailjs.init(publicKey);
             }
-            loadSettings();
         });
 
         // 현재 시간 업데이트
@@ -589,6 +590,29 @@
             toggleSettings();
         }
 
+        // 기본값 설정 함수
+        function setDefaultValues() {
+            // 교감선생님 기본 정보 (사용자 제공 정보로 설정)
+            const defaultSettings = {
+                vicePrincipal1Email: 'hanrame@daum.net',
+                vicePrincipal1Name: '기남호',
+                vicePrincipal2Email: 'dowon121202@gmail.com', 
+                vicePrincipal2Name: '김동구',
+                schoolName: '와석초등학교',
+                // EmailJS 기본값 (사용자 제공 값으로 설정)
+                emailjsServiceId: 'service_km1dyqo',
+                emailjsTemplateId: 'template_7govip5',
+                emailjsPublicKey: 'TkDbK0r60JIBx0R6A'
+            };
+
+            // 저장된 값이 없으면 기본값 사용
+            Object.keys(defaultSettings).forEach(key => {
+                if (!localStorage.getItem(key) && defaultSettings[key]) {
+                    localStorage.setItem(key, defaultSettings[key]);
+                }
+            });
+        }
+
         // 설정 불러오기
         function loadSettings() {
             const vp1Email = localStorage.getItem('vicePrincipal1Email');
@@ -630,17 +654,10 @@
                 localStorage.removeItem('emailjsTemplateId');
                 localStorage.removeItem('emailjsPublicKey');
                 
-                document.getElementById('vicePrincipal1Email').value = '';
-                document.getElementById('vicePrincipal1Name').value = '';
-                document.getElementById('vicePrincipal2Email').value = '';
-                document.getElementById('vicePrincipal2Name').value = '';
-                document.getElementById('ccEmail').value = '';
-                document.getElementById('schoolName').value = '';
-                document.getElementById('emailjsServiceId').value = '';
-                document.getElementById('emailjsTemplateId').value = '';
-                document.getElementById('emailjsPublicKey').value = '';
+                setDefaultValues(); // 기본값 다시 설정
+                loadSettings(); // 기본값 화면에 로드
                 
-                showStatus('설정이 초기화되었습니다.', 'success');
+                showStatus('설정이 기본값으로 초기화되었습니다.', 'success');
             }
         }
 
@@ -667,15 +684,15 @@
 
             const currentTime = new Date().toLocaleString('ko-KR');
             const urgencyEmoji = urgencyLevel.includes('매우긴급') ? '🔴' : urgencyLevel.includes('긴급') ? '🟡' : '🟢';
-            const schoolName = localStorage.getItem('schoolName') || '○○초등학교';
+            const schoolName = localStorage.getItem('schoolName') || '와석초등학교';
 
             // 수신자 정보
-            const vp1Name = localStorage.getItem('vicePrincipal1Name') || '1교감선생님';
-            const vp2Name = localStorage.getItem('vicePrincipal2Name') || '2교감선생님';
+            const vp1Name = localStorage.getItem('vicePrincipal1Name') || '기남호';
+            const vp2Name = localStorage.getItem('vicePrincipal2Name') || '김동구';
             let recipientInfo = '';
-            if (vpSelect === 'vp1') recipientInfo = vp1Name;
-            else if (vpSelect === 'vp2') recipientInfo = vp2Name;
-            else if (vpSelect === 'both') recipientInfo = `${vp1Name}, ${vp2Name}`;
+            if (vpSelect === 'vp1') recipientInfo = vp1Name + ' 교감선생님';
+            else if (vpSelect === 'vp2') recipientInfo = vp2Name + ' 교감선생님';
+            else if (vpSelect === 'both') recipientInfo = `${vp1Name} 교감선생님, ${vp2Name} 교감선생님`;
 
             const emailContent = `
                 <strong>수신자:</strong> ${recipientInfo}<br>
@@ -733,7 +750,7 @@
             const situation = document.getElementById('situation').value || '긴급상황 발생으로 즉시 분리지도가 필요합니다.\n추가 정보는 추후 보고드리겠습니다.';
 
             const currentTime = new Date().toLocaleString('ko-KR');
-            const schoolName = localStorage.getItem('schoolName') || '○○초등학교';
+            const schoolName = localStorage.getItem('schoolName') || '와석초등학교';
 
             // 긴급도 이모지 변환
             const urgencyEmoji = urgencyLevel.includes('매우긴급') ? '🔴' : 
@@ -741,9 +758,9 @@
 
             // 수신자 결정
             const vp1Email = localStorage.getItem('vicePrincipal1Email');
-            const vp1Name = localStorage.getItem('vicePrincipal1Name') || '1교감선생님';
+            const vp1Name = localStorage.getItem('vicePrincipal1Name') || '기남호';
             const vp2Email = localStorage.getItem('vicePrincipal2Email');
-            const vp2Name = localStorage.getItem('vicePrincipal2Name') || '2교감선생님';
+            const vp2Name = localStorage.getItem('vicePrincipal2Name') || '김동구';
 
             let recipients = [];
             if (vpSelect === 'vp1' && vp1Email) {
@@ -820,7 +837,7 @@
 
                 // 성공 메시지
                 const recipientNames = recipients.slice(0, successCount).map(r => r.name).join(', ');
-                showStatus(`✅ 메일이 성공적으로 전송되었습니다!\n${recipientNames}에게 전송 완료`, 'success');
+                showStatus(`✅ 메일이 성공적으로 전송되었습니다!\n${recipientNames} 교감선생님에게 전송 완료`, 'success');
 
                 // 폼 초기화
                 document.getElementById('separationForm').reset();
